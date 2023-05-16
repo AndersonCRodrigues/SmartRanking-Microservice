@@ -5,10 +5,10 @@ services:
     container_name: rabbitmq-with-ssl
     build: ./rabbitmq-with-ssl-in-docker
     ports:
-      - 15672:15672
-      - 15671:15671
-      - 5672:5672
-      - 5671:5671
+      - "15672:15672"
+      - "15671:15671"
+      - "5672:5672"
+      - "5671:5671"
     environment:
       - RABBITMQ_DEFAULT_USER=user
       - RABBITMQ_DEFAULT_PASS=password
@@ -17,3 +17,52 @@ services:
     tty: true
     stdin_open: true
     restart: always
+
+  api_gateway:
+    container_name: api_gateway
+    build: ./api_gateway
+    ports:
+      - "5000:3000"
+    volumes:
+      - ./api_gateway:/app/api_gateway
+    tty: true
+    stdin_open: true
+    restart: always
+    command: start:dev
+    depends_on:
+      - rabbitmq
+      - micro_admin_backend
+      - mongodb
+      # - mongo-express
+
+  micro_admin_backend:
+    container_name: micro_admin_backend
+    build: ./micro_admin_backend
+    ports:
+      - "5001:3000"
+    volumes:
+      - ./micro_admin_backend:/app/micro_admin_backend
+    tty: true
+    stdin_open: true
+    restart: always
+    command: start:dev
+    environment:
+      - MONGODB_URL='mongodb://root:password@localhost:27017/?authMechanism=DEFAULT/smartranking'
+    depends_on:
+      - rabbitmq
+      - mongodb
+
+  mongodb:
+    image: mongo
+    container_name: mongodb
+    command: mongod --bind_ip_all
+    restart: always
+    ports:
+      - "27017:27017"
+    volumes:
+      - ./data:/data/db
+    environment:
+      - ME_CONFIG_MONGODB_ADMINUSERNAME=root
+      - ME_CONFIG_MONGODB_ADMINPASSWORD=password
+      - ME_CONFIG_MONGODB_SERVER=mongodb
+
