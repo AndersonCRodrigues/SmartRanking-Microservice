@@ -1,15 +1,23 @@
-import { Controller } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Post,
+  UsePipes,
+  ValidationPipe,
+} from '@nestjs/common';
 import {
   ClientProxy,
   ClientProxyFactory,
   Transport,
 } from '@nestjs/microservices';
 import { config } from 'dotenv';
+import { IPlayer } from './interfaces/player.interface';
+import CreatePlayerDto from './dtos/create_player.dto';
 
 config();
 
 const { RABBITMQ_URL } = process.env;
-@Controller('player')
+@Controller('api/v1/players')
 export class PlayerController {
   private clienteAdminBackend: ClientProxy;
 
@@ -22,5 +30,11 @@ export class PlayerController {
         noAck: false,
       },
     });
+  }
+
+  @Post()
+  @UsePipes(ValidationPipe)
+  createPlayer(@Body() createPlayerDto: CreatePlayerDto): void {
+    this.clienteAdminBackend.emit('create-player', createPlayerDto);
   }
 }
