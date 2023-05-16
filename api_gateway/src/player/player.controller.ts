@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   Patch,
@@ -40,8 +41,8 @@ export class PlayerController {
 
   @Post()
   @UsePipes(ValidationPipe)
-  createPlayer(@Body() createPlayerDto: CreatePlayerDto): void {
-    this.clienteAdminBackend.emit('create-player', createPlayerDto);
+  createPlayer(@Body() createPlayerDto: CreatePlayerDto): Observable<void> {
+    return this.clienteAdminBackend.emit('create-player', createPlayerDto);
   }
 
   @Get()
@@ -54,10 +55,15 @@ export class PlayerController {
   updatePlayer(
     @Body() updatePlayerDto: UpdatePlayerDto,
     @Param('_id') id: string,
-  ): void {
-    this.clienteAdminBackend.emit('update-player', {
+  ): Observable<void> {
+    return this.clienteAdminBackend.emit('update-player', {
       id,
       player: updatePlayerDto,
     });
+  }
+
+  @Delete('/:id')
+  deletePlayer(@Param('id') id: string): Observable<void> {
+    return this.clienteAdminBackend.emit('delete-player', id);
   }
 }
