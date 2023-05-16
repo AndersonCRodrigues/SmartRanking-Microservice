@@ -1,9 +1,11 @@
 import {
   Body,
   Controller,
+  Get,
   Param,
   Patch,
   Post,
+  Query,
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
@@ -16,6 +18,7 @@ import { config } from 'dotenv';
 import { IPlayer } from './interfaces/player.interface';
 import CreatePlayerDto from './dtos/create_player.dto';
 import UpdatePlayerDto from './dtos/update-player.dto';
+import { Observable } from 'rxjs';
 
 config();
 
@@ -39,6 +42,11 @@ export class PlayerController {
   @UsePipes(ValidationPipe)
   createPlayer(@Body() createPlayerDto: CreatePlayerDto): void {
     this.clienteAdminBackend.emit('create-player', createPlayerDto);
+  }
+
+  @Get()
+  getPlayer(@Query('id') id: string): Observable<IPlayer> {
+    return this.clienteAdminBackend.send('get-players', id || '');
   }
 
   @Patch('/:_id')
