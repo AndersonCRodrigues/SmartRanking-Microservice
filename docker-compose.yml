@@ -1,0 +1,19 @@
+version: '3'
+
+services:
+  rabbitmq:
+    container_name: rabbitmq-with-ssl
+    build: ./rabbitmq-with-ssl-in-docker
+    ports:
+      - 15672:15672
+      - 15671:15671
+      - 5672:5672
+      - 5671:5671
+    environment:
+      - RABBITMQ_DEFAULT_USER=user
+      - RABBITMQ_DEFAULT_PASS=password
+    volumes:
+      - ./rabbitmq_cert:/home/client
+    tty: true
+    stdin_open: true
+    restart: always
