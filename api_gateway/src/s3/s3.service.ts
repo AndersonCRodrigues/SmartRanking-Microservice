@@ -41,7 +41,7 @@ export class S3Service {
         new PutObjectCommand(input),
       );
       if (response.$metadata.httpStatusCode === 200) {
-        return `https://${bucket}.s3.${this.region}.amazonasw.com/${urlKey}`;
+        return `https://${bucket}.s3.${this.region}.amazonaws.com/${urlKey}`;
       }
       throw new Error('Image not saved S3!');
     } catch (error) {
