@@ -4,7 +4,8 @@ import { config } from 'dotenv';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 config();
 
-const URL = process.env.RABBIT_URL || 'no_url';
+const URL = process.env.RABBITMQ_URL || 'no_url';
+console.log(URL);
 
 async function bootstrap() {
   const app = NestFactory.createMicroservice<MicroserviceOptions>(AppModule, {

@@ -9,7 +9,7 @@ import {
 } from '@nestjs/microservices';
 import { ICategory } from './interfaces/category.interface';
 
-const ackErrors = ['E1100'];
+const ackErrors = ['E1100', 'Category already registered'];
 
 @Controller()
 export class CategoryController {
