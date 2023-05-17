@@ -82,6 +82,22 @@ export class PlayerController {
     }
   }
 
+  @EventPattern('update-image-player')
+  async updatePlayerImage(
+    @Payload() param: any,
+    @Ctx() context: RmqContext,
+  ): Promise<void> {
+    const channel = context.getChannelRef();
+    const originalMsg = context.getMessage();
+    try {
+      this.logger.log(param);
+      this.playerService.updatePlayerImage(param);
+      await this.updateAck(channel, originalMsg);
+    } catch (e) {
+      await this.updateAck(channel, originalMsg, e);
+    }
+  }
+
   private async updateAck(
     channel: any,
     originalMsg: any,
