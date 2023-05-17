@@ -23,7 +23,7 @@ config();
 
 const { RABBITMQ_URL } = process.env;
 
-@Controller('category')
+@Controller('api/v1/players')
 export class CategoryController {
   private clienteAdminBackend: ClientProxy;
 
@@ -38,18 +38,18 @@ export class CategoryController {
     });
   }
 
-  @Post('categories')
+  @Post()
   @UsePipes(ValidationPipe)
   createCategory(@Body() createCategoryDto: CreateCategoryDto) {
     this.clienteAdminBackend.emit('create-category', createCategoryDto);
   }
 
-  @Get('categories')
+  @Get()
   getCategory(@Query('idCategory') _id: string): Observable<any> {
     return this.clienteAdminBackend.send('get-categories', _id || '');
   }
 
-  @Patch('categories/:id')
+  @Patch('/:id')
   @UsePipes(ValidationPipe)
   updateCategorie(
     @Param('id') id: string,
