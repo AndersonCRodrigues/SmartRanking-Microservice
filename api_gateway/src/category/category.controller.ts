@@ -23,7 +23,7 @@ config();
 
 const { RABBITMQ_URL } = process.env;
 
-@Controller('api/v1/players')
+@Controller('api/v1/categories')
 export class CategoryController {
   private clienteAdminBackend: ClientProxy;
 
