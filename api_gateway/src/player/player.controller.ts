@@ -10,34 +10,16 @@ import {
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
-import {
-  ClientProxy,
-  ClientProxyFactory,
-  Transport,
-} from '@nestjs/microservices';
-import { config } from 'dotenv';
 import { IPlayer } from './interfaces/player.interface';
 import CreatePlayerDto from './dtos/create_player.dto';
 import UpdatePlayerDto from './dtos/update-player.dto';
 import { Observable } from 'rxjs';
+import { ClientProxySmartRanking } from 'src/proxyrmq/client.proxy';
 
-config();
-
-const { RABBITMQ_URL } = process.env;
 @Controller('api/v1/players')
 export class PlayerController {
-  private clienteAdminBackend: ClientProxy;
-
-  constructor() {
-    this.clienteAdminBackend = ClientProxyFactory.create({
-      transport: Transport.RMQ,
-      options: {
-        urls: [RABBITMQ_URL],
-        queue: 'admin-backend',
-        noAck: false,
-      },
-    });
-  }
+  constructor(private clientProxy: ClientProxySmartRanking) {}
+  private clienteAdminBackend = this.clientProxy.getClienteProxy();
 
   @Post()
   @UsePipes(ValidationPipe)
