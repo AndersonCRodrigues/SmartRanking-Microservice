@@ -26,7 +26,7 @@ config();
 
 const { RABBITMQ_URL } = process.env;
 
-@Controller('api/v1/categories')
+@Controller('api/v1/challenges')
 export class ChallengeController {
   private clienteAdminBackend: ClientProxy;
 
@@ -68,10 +68,10 @@ export class ChallengeController {
     });
   }
 
-  @Post('/:challenge/match')
+  @Post('/:id/match')
   addChallengeMatch(
     @Body(ValidationPipe) addChallengeMatchDto: AddChallengeMatchDto,
-    @Param('challenge') id: string,
+    @Param('id') id: string,
   ): Observable<void> {
     return this.clienteAdminBackend.emit('add-challenge-match', {
       id,
