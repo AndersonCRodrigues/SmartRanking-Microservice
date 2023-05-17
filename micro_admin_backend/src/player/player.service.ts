@@ -32,7 +32,7 @@ export class PlayerService {
       const player = await this.playerModel.findById(_id);
 
       if (!player) {
-        throw new RpcException(`Player with id ${_id} not found`);
+        throw new RpcException('Player not found');
       }
       return player;
     } catch (e) {
@@ -57,9 +57,7 @@ export class PlayerService {
   async createPlayer(createPlayerDto: CreatePlayerDto): Promise<IPlayer> {
     try {
       if (await this.findPlayerBYEmail(createPlayerDto.email)) {
-        throw new RpcException(
-          `E-mail ${createPlayerDto.email} already registered`,
-        );
+        throw new RpcException('E-mail already registered');
       }
       const player = new this.playerModel(createPlayerDto);
       return player.save();
