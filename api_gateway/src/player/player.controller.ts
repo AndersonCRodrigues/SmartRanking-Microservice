@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -62,8 +63,11 @@ export class PlayerController {
 
   @Post('/:id/upload')
   @UseInterceptors(FileInterceptor('file'))
-  async uploadImage(@Param('id') id: string, @UploadedFile() file) {
+  async uploadImage(@Param('id') id: string, @UploadedFile() file: any) {
+    if (!this.clienteAdminBackend.send('get-players', id)) {
+      throw new BadRequestException('Player not found');
+    }
     const image = await this.s3Service.uploadFile(id, file);
-    this.logger.log(image);
+    this.clienteAdminBackend.emit('update-image-player', { id, image });
   }
 }
