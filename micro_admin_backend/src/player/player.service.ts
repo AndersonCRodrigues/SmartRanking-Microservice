@@ -76,4 +76,15 @@ export class PlayerService {
       throw new RpcException(e.message);
     }
   }
+
+  async updatePlayerImage(param: any) {
+    try {
+      const myPlayer = await this.getById(param.id);
+      myPlayer.urlImagePalyer = param.image;
+      myPlayer.save();
+    } catch (e) {
+      this.logger.error(`error: ${JSON.stringify(e.message)}`);
+      throw new RpcException(e.message);
+    }
+  }
 }
