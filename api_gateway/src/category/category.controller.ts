@@ -41,7 +41,7 @@ export class CategoryController {
   @Post()
   @UsePipes(ValidationPipe)
   createCategory(@Body() createCategoryDto: CreateCategoryDto) {
-    this.clienteAdminBackend.send('create-category', createCategoryDto);
+    this.clienteAdminBackend.emit('create-category', createCategoryDto);
   }
 
   @Get()
