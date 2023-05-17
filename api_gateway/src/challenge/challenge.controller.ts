@@ -10,36 +10,18 @@ import {
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
-import {
-  ClientProxy,
-  ClientProxyFactory,
-  Transport,
-} from '@nestjs/microservices';
-import { config } from 'dotenv';
 import { CreateChallengeDto } from './dtos/create_challenge.dto';
 import { IMatch } from './interfaces/challenge.interface';
 import { Observable } from 'rxjs';
 import { ChallengeStatusValidation } from './pipes/challenge.satus.pipe';
 import { UpdateChallengeDto } from './dtos/update_challenge';
 import { AddChallengeMatchDto } from './dtos/add_challenge_match.dto';
-config();
-
-const { RABBITMQ_URL } = process.env;
+import { ClientProxySmartRanking } from 'src/proxyrmq/client.proxy';
 
 @Controller('api/v1/challenges')
 export class ChallengeController {
-  private clienteAdminBackend: ClientProxy;
-
-  constructor() {
-    this.clienteAdminBackend = ClientProxyFactory.create({
-      transport: Transport.RMQ,
-      options: {
-        urls: [RABBITMQ_URL],
-        queue: 'admin-backend',
-        noAck: false,
-      },
-    });
-  }
+  constructor(private clientProxy: ClientProxySmartRanking) {}
+  private clienteAdminBackend = this.clientProxy.getClienteProxy();
 
   @Post()
   @UsePipes(ValidationPipe)
