@@ -9,34 +9,15 @@ import {
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
-import {
-  ClientProxy,
-  ClientProxyFactory,
-  Transport,
-} from '@nestjs/microservices';
-import { config } from 'dotenv';
 import { Observable } from 'rxjs';
 import { CreateCategoryDto } from './dtos/create_category.dto';
 import { UpdateCategoryDto } from './dtos/update_category.dto';
-
-config();
-
-const { RABBITMQ_URL } = process.env;
+import { ClientProxySmartRanking } from 'src/proxyrmq/client.proxy';
 
 @Controller('api/v1/categories')
 export class CategoryController {
-  private clienteAdminBackend: ClientProxy;
-
-  constructor() {
-    this.clienteAdminBackend = ClientProxyFactory.create({
-      transport: Transport.RMQ,
-      options: {
-        urls: [RABBITMQ_URL],
-        queue: 'admin-backend',
-        noAck: false,
-      },
-    });
-  }
+  constructor(private clientProxy: ClientProxySmartRanking) {}
+  private clienteAdminBackend = this.clientProxy.getClienteProxy();
 
   @Post()
   @UsePipes(ValidationPipe)
