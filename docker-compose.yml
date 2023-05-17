@@ -17,37 +17,3 @@ services:
     tty: true
     stdin_open: true
     restart: always
-
-  # api_gateway:
-  #   container_name: api_gateway
-  #   build: ./api_gateway
-  #   ports:
-  #     - "5000:3000"
-  #   volumes:
-  #     - ./api_gateway:/app/api_gateway
-  #   tty: true
-  #   stdin_open: true
-  #   restart: always
-  #   command: start:dev
-  #   environment:
-  #     - RABBITMQ_URL='amqp://user:password@rabbitmq:5672/smartranking'
-  #   depends_on:
-  #     - rabbitmq
-
-  # micro_admin_backend:
-  #   container_name: micro_admin_backend
-  #   build: ./micro_admin_backend
-  #   ports:
-  #     - "5001:3000"
-  #   volumes:
-  #     - ./micro_admin_backend:/app/micro_admin_backend
-  #   tty: true
-  #   stdin_open: true
-  #   restart: always
-  #   command: start:dev
-  #   environment:
-  #     - RABBITMQ_URL='amqp://user:password@rabbitmq:5672/smartranking'
-  #   depends_on:
-  #     - rabbitmq
-
-
