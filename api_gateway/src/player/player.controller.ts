@@ -3,10 +3,13 @@ import {
   Controller,
   Delete,
   Get,
+  Logger,
   Param,
   Patch,
   Post,
   Query,
+  UploadedFile,
+  UseInterceptors,
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
@@ -15,10 +18,18 @@ import CreatePlayerDto from './dtos/create_player.dto';
 import UpdatePlayerDto from './dtos/update-player.dto';
 import { Observable } from 'rxjs';
 import { ClientProxySmartRanking } from 'src/proxyrmq/client.proxy';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { S3Service } from 'src/s3/s3.service';
 
 @Controller('api/v1/players')
 export class PlayerController {
-  constructor(private clientProxy: ClientProxySmartRanking) {}
+  private logger = new Logger(PlayerController.name);
+
+  constructor(
+    private clientProxy: ClientProxySmartRanking,
+    private s3Service: S3Service,
+  ) {}
+
   private clienteAdminBackend = this.clientProxy.getClienteProxy();
 
   @Post()
@@ -32,11 +43,11 @@ export class PlayerController {
     return this.clienteAdminBackend.send('get-players', id || '');
   }
 
-  @Patch('/:_id')
+  @Patch('/:id')
   @UsePipes(ValidationPipe)
   updatePlayer(
     @Body() updatePlayerDto: UpdatePlayerDto,
-    @Param('_id') id: string,
+    @Param('id') id: string,
   ): Observable<void> {
     return this.clienteAdminBackend.emit('update-player', {
       id,
@@ -47,5 +58,12 @@ export class PlayerController {
   @Delete('/:id')
   deletePlayer(@Param('id') id: string): Observable<void> {
     return this.clienteAdminBackend.emit('delete-player', id);
+  }
+
+  @Post('/:id/upload')
+  @UseInterceptors(FileInterceptor('file'))
+  async uploadImage(@Param('id') id: string, @UploadedFile() file) {
+    const image = await this.s3Service.uploadFile(id, file);
+    this.logger.log(image);
   }
 }
