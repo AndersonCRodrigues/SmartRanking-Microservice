@@ -60,7 +60,8 @@ export class PlayerController {
     try {
       const { id } = data;
       const player: IPlayer = data.player;
-      return this.playerService.updatePlayer(id, player);
+      this.playerService.updatePlayer(id, player);
+      await this.updateAck(channel, originalMsg);
     } catch (e) {
       await this.updateAck(channel, originalMsg, e);
     }
