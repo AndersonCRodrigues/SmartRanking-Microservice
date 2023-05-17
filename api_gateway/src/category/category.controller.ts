@@ -1,4 +1,14 @@
-import { Body, Controller, Get, Param, Patch, Post, Query, UsePipes, ValidationPipe } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Query,
+  UsePipes,
+  ValidationPipe,
+} from '@nestjs/common';
 import {
   ClientProxy,
   ClientProxyFactory,
@@ -6,6 +16,8 @@ import {
 } from '@nestjs/microservices';
 import { config } from 'dotenv';
 import { Observable } from 'rxjs';
+import { CreateCategoryDto } from './dtos/create_category.dto';
+import { UpdateCategoryDto } from './dtos/update_category.dto';
 
 config();
 
