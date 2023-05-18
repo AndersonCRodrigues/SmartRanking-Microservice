@@ -11,32 +11,24 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 import { CreateChallengeDto } from './dtos/create_challenge.dto';
-import { IMatch } from './interfaces/challenge.interface';
-import { Observable } from 'rxjs';
 import { ChallengeStatusValidation } from './pipes/challenge.satus.pipe';
 import { UpdateChallengeDto } from './dtos/update_challenge';
 import { AddChallengeMatchDto } from './dtos/add_challenge_match.dto';
-import { ClientProxySmartRanking } from 'src/proxyrmq/client.proxy';
+import { ChallengeService } from './challenge.service';
 
 @Controller('api/v1/challenges')
 export class ChallengeController {
-  constructor(private clientProxy: ClientProxySmartRanking) {}
-  private clienteAdminBackend = this.clientProxy.getClienteProxy();
+  constructor(private readonly challengeService: ChallengeService) {}
 
   @Post()
   @UsePipes(ValidationPipe)
-  createChallenge(
-    @Body() createChallengeDto: CreateChallengeDto,
-  ): Observable<void> {
-    return this.clienteAdminBackend.emit(
-      'create-challenge',
-      createChallengeDto,
-    );
+  createChallenge(@Body() createChallengeDto: CreateChallengeDto) {
+    this.challengeService.createChallenge(createChallengeDto);
   }
 
   @Get()
-  getChallenges(@Query('id') id: string): Observable<IMatch[] | IMatch> {
-    return this.clienteAdminBackend.send('get-challenges', id || '');
+  getChallenges(@Query('id') id: string) {
+    return this.challengeService.getChallenges(id);
   }
 
   @Patch('/:id')
@@ -44,25 +36,19 @@ export class ChallengeController {
     @Param('id') id: string,
     @Body(ChallengeStatusValidation) updateChallengeDto: UpdateChallengeDto,
   ) {
-    return this.clienteAdminBackend.emit('update-challenge', {
-      id,
-      updateChallengeDto,
-    });
+    return this.challengeService.updateChallenge(id, updateChallengeDto);
   }
 
   @Post('/:id/match')
   addChallengeMatch(
     @Body(ValidationPipe) addChallengeMatchDto: AddChallengeMatchDto,
     @Param('id') id: string,
-  ): Observable<void> {
-    return this.clienteAdminBackend.emit('add-challenge-match', {
-      id,
-      addChallengeMatchDto,
-    });
+  ) {
+    return this.challengeService.addChallengeMatch(id, addChallengeMatchDto);
   }
 
   @Delete('/challenge')
-  deleteChallenge(@Param('challenge') id: string): Observable<void> {
-    return this.clienteAdminBackend.emit('delete-challenge', id);
+  deleteChallenge(@Param('challenge') id: string) {
+    return this.challengeService.deleteChallenge(id);
   }
 }
