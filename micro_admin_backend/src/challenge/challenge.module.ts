@@ -9,8 +9,8 @@ import { MatchSchema } from './interfaces/match.schema';
 
 @Module({
   imports: [
-    PlayerModule,
     CategoryModule,
+    PlayerModule,
     MongooseModule.forFeature([
       { name: 'Challenge', schema: ChallengeSchema },
       { name: 'Match', schema: MatchSchema },

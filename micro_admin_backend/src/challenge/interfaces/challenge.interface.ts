@@ -1,6 +1,6 @@
 import { Document } from 'mongoose';
 import { ChallengeStatus } from './challenge.status.enum';
-import { IPlayer } from 'src/players/interfaces/players.interface';
+import { IPlayer } from 'src/player/interfaces/players.interface';
 
 export interface IResult {
   set: string;

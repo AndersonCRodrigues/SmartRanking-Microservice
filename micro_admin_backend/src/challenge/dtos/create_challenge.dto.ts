@@ -5,7 +5,7 @@ import {
   IsDateString,
   IsNotEmpty,
 } from 'class-validator';
-import { IPlayer } from 'src/players/interfaces/players.interface';
+import { IPlayer } from 'src/player/interfaces/players.interface';
 
 export class CreateChallengeDto {
   @IsNotEmpty()

@@ -5,10 +5,10 @@ import { UpdateChallengeDto } from './dtos/update_challenge.dto';
 import { RpcException } from '@nestjs/microservices';
 import { IChallenge, IMatch } from './interfaces/challenge.interface';
 import { CreateChallengeDto } from './dtos/create_challenge.dto';
-import { PlayerService } from 'src/player/player.service';
 import { CategoryService } from 'src/category/category.service';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import { PlayerService } from 'src/player/player.service';
 
 @Injectable()
 export class ChallengeService {

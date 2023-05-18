@@ -1,6 +1,6 @@
 import { IsNotEmpty } from 'class-validator';
-import { IPlayer } from 'src/players/interfaces/players.interface';
 import { IResult } from '../interfaces/challenge.interface';
+import { IPlayer } from 'src/player/interfaces/players.interface';
 
 export class AddChallengeMatchDto {
   @IsNotEmpty()
