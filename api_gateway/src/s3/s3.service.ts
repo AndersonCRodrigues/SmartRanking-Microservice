@@ -5,11 +5,7 @@ import {
   S3Client,
 } from '@aws-sdk/client-s3';
 import { Injectable, Logger } from '@nestjs/common';
-import { config } from 'dotenv';
-
-config();
-
-const { AWS_REGION, S3_BUCKET_NAME } = process.env;
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class S3Service {
@@ -17,8 +13,8 @@ export class S3Service {
   private s3: S3Client;
   private logger = new Logger(S3Service.name);
 
-  constructor() {
-    this.region = AWS_REGION || 'sa-east-1';
+  constructor(private configService: ConfigService) {
+    this.region = this.configService.get<string>('AWS_REGION') || 'sa-east-1';
     this.s3 = new S3Client({
       region: this.region,
     });
@@ -27,7 +23,7 @@ export class S3Service {
   async uploadFile(id: string, file: any) {
     const fileExtension = this.getFileExtension(file.originalname);
     const urlKey = `${id}.${fileExtension}`;
-    const bucket = S3_BUCKET_NAME || 'NONE';
+    const bucket = this.configService.get<string>('S3_BUCKET_NAME') || 'NONE';
     const input: PutObjectCommandInput = {
       Body: file.buffer,
       Bucket: bucket,
