@@ -69,8 +69,10 @@ export class PlayerController {
     } catch (e) {
       throw new BadRequestException(e.message);
     }
+
     const image = await this.s3Service.uploadFile(id, file);
     this.clienteAdminBackend.emit('update-image-player', { id, image });
-    return this.clienteAdminBackend.send('get-players', id);
+
+    return lastValueFrom(this.clienteAdminBackend.send('get-players', id));
   }
 }

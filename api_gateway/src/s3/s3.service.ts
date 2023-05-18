@@ -25,7 +25,7 @@ export class S3Service {
   }
 
   async uploadFile(id: string, file: any) {
-    const fileExtension = file.originalname.split('.')[1];
+    const fileExtension = this.getFileExtension(file.originalname);
     const urlKey = `${id}.${fileExtension}`;
     const bucket = S3_BUCKET_NAME || 'NONE';
     const input: PutObjectCommandInput = {
@@ -41,12 +41,21 @@ export class S3Service {
         new PutObjectCommand(input),
       );
       if (response.$metadata.httpStatusCode === 200) {
-        return `https://${bucket}.s3.${this.region}.amazonaws.com/${urlKey}`;
+        return this.generateS3Url(bucket, this.region, urlKey);
       }
-      throw new Error('Image not saved S3!');
+      throw new Error('Image not saved in S3!');
     } catch (error) {
       this.logger.error('Cannot save file inside S3', error.message);
       throw error;
     }
+  }
+
+  private getFileExtension(filename: string) {
+    const parts = filename.split('.');
+    return parts[parts.length - 1];
+  }
+
+  private generateS3Url(bucket: string, region: string, key: string) {
+    return `https://${bucket}.s3.${region}.amazonaws.com/${key}`;
   }
 }
