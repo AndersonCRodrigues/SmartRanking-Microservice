@@ -56,4 +56,17 @@ export class CategoryService {
       throw new RpcException(e.message);
     }
   }
+
+  async getCategoryByPlayer(_id: string): Promise<ICategory> {
+    const category = await this.categoryModel
+      .findOne()
+      .where('players')
+      .in([_id]);
+
+    if (!category) {
+      throw new RpcException('Player not being in any category');
+    }
+
+    return category;
+  }
 }
