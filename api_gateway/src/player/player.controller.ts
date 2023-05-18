@@ -17,7 +17,7 @@ import {
 import { IPlayer } from './interfaces/player.interface';
 import CreatePlayerDto from './dtos/create_player.dto';
 import UpdatePlayerDto from './dtos/update-player.dto';
-import { Observable } from 'rxjs';
+import { Observable, lastValueFrom } from 'rxjs';
 import { ClientProxySmartRanking } from 'src/proxyrmq/client.proxy';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { S3Service } from 'src/s3/s3.service';
@@ -64,10 +64,13 @@ export class PlayerController {
   @Post('/:id/upload')
   @UseInterceptors(FileInterceptor('file'))
   async uploadImage(@Param('id') id: string, @UploadedFile() file: any) {
-    if (!this.clienteAdminBackend.send('get-players', id)) {
-      throw new BadRequestException('Player not found');
+    try {
+      await lastValueFrom(this.clienteAdminBackend.send('get-players', id));
+    } catch (e) {
+      throw new BadRequestException(e.message);
     }
     const image = await this.s3Service.uploadFile(id, file);
     this.clienteAdminBackend.emit('update-image-player', { id, image });
+    return this.clienteAdminBackend.send('get-players', id);
   }
 }
