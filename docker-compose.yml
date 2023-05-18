@@ -1,9 +1,9 @@
 version: '3'
-
 services:
   rabbitmq:
     container_name: rabbitmq-with-ssl
-    build: ./rabbitmq-with-ssl-in-docker
+    build:
+      context: ./rabbitmq-with-ssl-in-docker
     ports:
       - "15672:15672"
       - "15671:15671"
@@ -14,6 +14,26 @@ services:
       - RABBITMQ_DEFAULT_PASS=password
     volumes:
       - ./rabbitmq_cert:/home/client
-    tty: true
-    stdin_open: true
     restart: always
+    networks:
+      - micro-service
+
+  api:
+    container_name: api-gateway
+    build:
+      context: ./api_gateway
+    command: start:dev
+    ports:
+      - "3000:3000"
+    environment:
+      - RABBITMQ_URL=amqp://user:password@rabbitmq:5672
+    volumes:
+      - ./api_gateway:/app/api_gateway
+    restart: always
+    networks:
+      - micro-service
+    depends_on:
+      - rabbitmq
+
+networks:
+  micro-service:
