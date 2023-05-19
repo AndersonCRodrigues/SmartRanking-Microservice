@@ -50,6 +50,22 @@ services:
     depends_on:
       - rabbitmq
 
+  micro_player:
+    container_name: micro_player
+    build:
+      context: ./micro_player
+    command: start:dev
+    environment:
+      - RABBITMQ_URL=amqp://user:password@rabbitmq:5672
+    volumes:
+      - ./micro_player:/app/micro_player
+    restart: always
+    networks:
+      - micro-service
+    depends_on:
+      - rabbitmq
+
+
 
 networks:
   micro-service:
