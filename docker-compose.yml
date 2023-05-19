@@ -35,15 +35,15 @@ services:
     depends_on:
       - rabbitmq
 
-  micro:
-    container_name: micro-admin-backend
+  micro_category:
+    container_name: micro_category
     build:
-      context: ./micro_admin_backend
+      context: ./micro_category
     command: start:dev
     environment:
       - RABBITMQ_URL=amqp://user:password@rabbitmq:5672
     volumes:
-      - ./micro_admin_backend:/app/micro_admin_backend
+      - ./micro_category:/app/micro_category
     restart: always
     networks:
       - micro-service
