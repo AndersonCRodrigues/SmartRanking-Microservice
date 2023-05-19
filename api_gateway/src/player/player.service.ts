@@ -24,7 +24,7 @@ export class PlayerService {
     );
   }
 
-  async getPlayers(id: string) {
+  async getPlayers(id: string): Promise<Observable<IPlayer | IPlayer[]>> {
     const player = await lastValueFrom(
       this.clienteAdminBackend.send('get-players', id || ''),
     );
