@@ -1,5 +1,4 @@
 import {
-  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -17,10 +16,11 @@ import {
 import { IPlayer } from './interfaces/player.interface';
 import CreatePlayerDto from './dtos/create_player.dto';
 import UpdatePlayerDto from './dtos/update-player.dto';
-import { Observable, lastValueFrom } from 'rxjs';
+import { Observable } from 'rxjs';
 import { ClientProxySmartRanking } from 'src/proxyrmq/client.proxy';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { S3Service } from 'src/s3/s3.service';
+import { PlayerService } from './player.service';
 
 @Controller('api/v1/players')
 export class PlayerController {
@@ -29,50 +29,44 @@ export class PlayerController {
   constructor(
     private clientProxy: ClientProxySmartRanking,
     private s3Service: S3Service,
+    private readonly playerService: PlayerService,
   ) {}
 
   private clienteAdminBackend = this.clientProxy.getClienteProxy();
 
   @Post()
   @UsePipes(ValidationPipe)
-  createPlayer(@Body() createPlayerDto: CreatePlayerDto): Observable<void> {
-    return this.clienteAdminBackend.emit('create-player', createPlayerDto);
+  async createPlayer(
+    @Body() createPlayerDto: CreatePlayerDto,
+  ): Promise<Observable<IPlayer>> {
+    return this.playerService.createPlayer(createPlayerDto);
   }
 
   @Get()
-  getPlayer(@Query('id') id: string): Observable<IPlayer> {
+  async getPlayer(@Query('id') id: string): Promise<Observable<IPlayer>> {
     return this.clienteAdminBackend.send('get-players', id || '');
   }
 
   @Patch('/:id')
   @UsePipes(ValidationPipe)
-  updatePlayer(
+  async updatePlayer(
     @Body() updatePlayerDto: UpdatePlayerDto,
     @Param('id') id: string,
-  ): Observable<void> {
-    return this.clienteAdminBackend.emit('update-player', {
-      id,
-      player: updatePlayerDto,
-    });
+  ): Promise<Observable<IPlayer>> {
+    return this.playerService.updatePlayer(id, updatePlayerDto);
   }
 
   @Delete('/:id')
-  deletePlayer(@Param('id') id: string): Observable<void> {
-    return this.clienteAdminBackend.emit('delete-player', id);
+  async deletePlayer(@Param('id') id: string): Promise<Observable<void>> {
+    return this.playerService.deletePlayer(id);
   }
 
   @Post('/:id/upload')
   @UseInterceptors(FileInterceptor('file'))
-  async uploadImage(@Param('id') id: string, @UploadedFile() file: any) {
-    try {
-      await lastValueFrom(this.clienteAdminBackend.send('get-players', id));
-    } catch (e) {
-      throw new BadRequestException(e.message);
-    }
-
-    const image = await this.s3Service.uploadFile(id, file);
-    this.clienteAdminBackend.emit('update-image-player', { id, image });
-
-    return lastValueFrom(this.clienteAdminBackend.send('get-players', id));
+  async uploadImage(
+    @Param('id') id: string,
+    @UploadedFile() file: Express.Multer.File,
+  ): Promise<Observable<IPlayer>> {
+    return this.playerService.updateImagePlayer(id, file);
   }
 }
