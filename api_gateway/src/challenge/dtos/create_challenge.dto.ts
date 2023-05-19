@@ -15,6 +15,9 @@ export class CreateChallengeDto {
   @IsNotEmpty()
   requester: string;
 
+  @IsNotEmpty()
+  category: string;
+
   @IsArray()
   @ArrayMinSize(2)
   @ArrayMaxSize(2)
