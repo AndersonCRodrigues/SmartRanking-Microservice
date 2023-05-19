@@ -2,14 +2,13 @@ import { Controller, Logger } from '@nestjs/common';
 import { CategoryService } from './category.service';
 import {
   Ctx,
-  EventPattern,
   MessagePattern,
   Payload,
   RmqContext,
 } from '@nestjs/microservices';
 import { ICategory } from './interfaces/category.interface';
 
-const ackErrors = ['E1100', 'Category already registered'];
+const ackErrors = ['E1100'];
 
 @Controller()
 export class CategoryController {
@@ -17,20 +16,22 @@ export class CategoryController {
 
   constructor(private readonly categoryService: CategoryService) {}
 
-  @EventPattern('create-category')
+  @MessagePattern('create-category')
   async createCategory(
     @Payload() category: ICategory,
     @Ctx() context: RmqContext,
   ) {
     const channel = context.getChannelRef();
     const originalMsg = context.getMessage();
+    let error: any | null;
     try {
       this.logger.log(`category: ${JSON.stringify(category)}`);
-      await this.categoryService.createCategory(category);
-      await this.updateAck(channel, originalMsg);
+      return await this.categoryService.createCategory(category);
     } catch (e) {
       this.logger.log(`error: ${JSON.stringify(e.message)}`);
-      await this.updateAck(channel, originalMsg, e);
+      error = e;
+    } finally {
+      await this.updateAck(channel, originalMsg, error);
     }
   }
 
@@ -41,27 +42,33 @@ export class CategoryController {
   ): Promise<ICategory | ICategory[]> {
     const channel = context.getChannelRef();
     const originalMsg = context.getMessage();
+    let error: any | null;
     try {
       if (id) {
         return this.categoryService.getCategoryById(id);
       }
       return this.categoryService.getAllCategories();
+    } catch (e) {
+      this.logger.log(`error: ${JSON.stringify(e.message)}`);
+      error = e;
     } finally {
-      await this.updateAck(channel, originalMsg);
+      await this.updateAck(channel, originalMsg, error);
     }
   }
 
-  @EventPattern('update-category')
+  @MessagePattern('update-category')
   async updateCategory(@Payload() data: any, @Ctx() context: RmqContext) {
     const channel = context.getChannelRef();
     const originalMsg = context.getMessage();
+    let error: any | null;
     try {
       const { id } = data;
       const category: ICategory = data.category;
-      await this.categoryService.updateCategory(id, category);
-      await this.updateAck(channel, originalMsg);
+      return await this.categoryService.updateCategory(id, category);
     } catch (e) {
-      await this.updateAck(channel, originalMsg, e);
+      error = e;
+    } finally {
+      await this.updateAck(channel, originalMsg, error);
     }
   }
 

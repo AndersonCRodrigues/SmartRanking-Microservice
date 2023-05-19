@@ -12,15 +12,7 @@ export class CategoryService {
     @InjectModel('Category') private readonly categoryModel: Model<ICategory>,
   ) {}
 
-  private async findCategory(category: string) {
-    return this.categoryModel.findOne({ category });
-  }
-
   async createCategory(category: ICategory): Promise<ICategory> {
-    const { category: param } = category;
-    if (await this.findCategory(param)) {
-      throw new RpcException('Category already registered');
-    }
     try {
       const createdCategory = new this.categoryModel(category);
       return createdCategory.save();
@@ -50,23 +42,10 @@ export class CategoryService {
 
   async updateCategory(_id: string, category: ICategory): Promise<void> {
     try {
-      await this.categoryModel.findOneAndUpdate({ _id }, category);
+      return await this.categoryModel.findOneAndUpdate({ _id }, category);
     } catch (e) {
       this.logger.error(`error: ${JSON.stringify(e.message)}`);
       throw new RpcException(e.message);
     }
-  }
-
-  async getCategoryByPlayer(_id: string): Promise<ICategory> {
-    const category = await this.categoryModel
-      .findOne()
-      .where('players')
-      .in([_id]);
-
-    if (!category) {
-      throw new RpcException('Player not being in any category');
-    }
-
-    return category;
   }
 }

@@ -1,16 +1,16 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { config } from 'dotenv';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
-config();
+import { ConfigService } from '@nestjs/config';
 
-const URL = process.env.RABBITMQ_URL || 'no_url';
+const configService = new ConfigService();
+const url = configService.get<string>('RABBITMQ_URL') || 'no_url';
 
 async function bootstrap() {
   const app = NestFactory.createMicroservice<MicroserviceOptions>(AppModule, {
     transport: Transport.RMQ,
     options: {
-      urls: [URL],
+      urls: [url],
       noAck: false,
       queue: 'admin-backend',
     },
