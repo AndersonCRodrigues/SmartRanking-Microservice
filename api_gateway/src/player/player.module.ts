@@ -10,5 +10,6 @@ import { CategoryModule } from 'src/category/category.module';
   imports: [ProxyRMQModule, S3Module, CategoryModule],
   controllers: [PlayerController],
   providers: [S3Service, PlayerService],
+  exports: [PlayerService],
 })
 export class PlayerModule {}
