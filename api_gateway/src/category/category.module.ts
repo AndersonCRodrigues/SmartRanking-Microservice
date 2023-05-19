@@ -7,5 +7,6 @@ import { CategoryService } from './category.service';
   imports: [ProxyRMQModule],
   controllers: [CategoryController],
   providers: [CategoryService],
+  exports: [CategoryService],
 })
 export class CategoryModule {}

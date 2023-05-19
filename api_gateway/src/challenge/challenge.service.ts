@@ -25,7 +25,7 @@ export class ChallengeService {
 
   async updateChallenge(id: string, updateChallengeDto: UpdateChallengeDto) {
     await this.getChallenges(id);
-    this.clienteAdminBackend.emit('update-challenge', {
+    this.clienteAdminBackend.send('update-challenge', {
       id,
       updateChallengeDto,
     });
@@ -36,7 +36,7 @@ export class ChallengeService {
     addChallengeMatchDto: AddChallengeMatchDto,
   ) {
     await this.getChallenges(id);
-    this.clienteAdminBackend.emit('add-challenge-match', {
+    this.clienteAdminBackend.send('add-challenge-match', {
       id,
       addChallengeMatchDto,
     });
@@ -44,6 +44,6 @@ export class ChallengeService {
 
   async deleteChallenge(id: string) {
     await this.getChallenges(id);
-    this.clienteAdminBackend.emit('delete-challenge', id);
+    this.clienteAdminBackend.send('delete-challenge', id);
   }
 }

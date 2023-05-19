@@ -11,16 +11,11 @@ import {
 } from '@nestjs/common';
 import { CreateCategoryDto } from './dtos/create_category.dto';
 import { UpdateCategoryDto } from './dtos/update_category.dto';
-import { ClientProxySmartRanking } from 'src/proxyrmq/client.proxy';
 import { CategoryService } from './category.service';
 
 @Controller('api/v1/categories')
 export class CategoryController {
-  constructor(
-    private clientProxy: ClientProxySmartRanking,
-    private readonly categoryService: CategoryService,
-  ) {}
-  private clienteAdminBackend = this.clientProxy.getClienteProxy();
+  constructor(private readonly categoryService: CategoryService) {}
 
   @Post()
   @UsePipes(ValidationPipe)
