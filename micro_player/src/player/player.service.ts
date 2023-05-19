@@ -14,8 +14,23 @@ export class PlayerService {
     @InjectModel('Player') private readonly playerModel: Model<IPlayer>,
   ) {}
 
-  private async findPlayerBYEmail(email: string) {
-    return this.playerModel.findOne({ email });
+  async createPlayer(createPlayerDto: CreatePlayerDto): Promise<IPlayer> {
+    try {
+      const player = new this.playerModel(createPlayerDto);
+      return player.save();
+    } catch (e) {
+      this.logger.error(`error: ${JSON.stringify(e.message)}`);
+      throw new RpcException(e.message);
+    }
+  }
+
+  async findPlayerBYEmail(email: string) {
+    try {
+      return this.playerModel.findOne({ email });
+    } catch (e) {
+      this.logger.error(`error: ${JSON.stringify(e.message)}`);
+      throw new RpcException(e.message);
+    }
   }
 
   async getAll(): Promise<IPlayer[]> {
@@ -29,12 +44,7 @@ export class PlayerService {
 
   async getById(_id: string): Promise<IPlayer> {
     try {
-      const player = await this.playerModel.findById(_id);
-
-      if (!player) {
-        throw new RpcException('Player not found');
-      }
-      return player;
+      return await this.playerModel.findById(_id);
     } catch (e) {
       this.logger.error(`error: ${JSON.stringify(e.message)}`);
       throw new RpcException(e.message);
@@ -44,23 +54,9 @@ export class PlayerService {
   async updatePlayer(
     _id: string,
     updatePlayerDto: UpdatePlayerDto,
-  ): Promise<void> {
+  ): Promise<IPlayer> {
     try {
-      await this.getById(_id);
-      await this.playerModel.findByIdAndUpdate(_id, updatePlayerDto);
-    } catch (e) {
-      this.logger.error(`error: ${JSON.stringify(e.message)}`);
-      throw new RpcException(e.message);
-    }
-  }
-
-  async createPlayer(createPlayerDto: CreatePlayerDto): Promise<IPlayer> {
-    try {
-      if (await this.findPlayerBYEmail(createPlayerDto.email)) {
-        throw new RpcException('E-mail already registered');
-      }
-      const player = new this.playerModel(createPlayerDto);
-      return player.save();
+      return await this.playerModel.findByIdAndUpdate(_id, updatePlayerDto);
     } catch (e) {
       this.logger.error(`error: ${JSON.stringify(e.message)}`);
       throw new RpcException(e.message);
@@ -69,7 +65,6 @@ export class PlayerService {
 
   async deletePlayer(_id: string): Promise<any> {
     try {
-      await this.getById(_id);
       return this.playerModel.findByIdAndDelete(_id);
     } catch (e) {
       this.logger.error(`error: ${JSON.stringify(e.message)}`);
