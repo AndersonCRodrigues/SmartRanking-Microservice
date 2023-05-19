@@ -10,26 +10,28 @@ import { PlayerService } from './player.service';
 import CreatePlayerDto from './dtos/create_player.dto';
 import { IPlayer } from './interfaces/players.interface';
 
-const ackErrors = ['E1100', 'Player not found', 'E-mail already registered'];
+const ackErrors = ['E1100'];
 @Controller()
 export class PlayerController {
   private readonly logger = new Logger(PlayerController.name);
 
   constructor(private readonly playerService: PlayerService) {}
 
-  @EventPattern('create-player')
+  @MessagePattern('create-player')
   async createPlayer(
     @Payload() createPlayerDto: CreatePlayerDto,
     @Ctx() context: RmqContext,
-  ): Promise<void> {
+  ): Promise<IPlayer> {
     const channel = context.getChannelRef();
     const originalMsg = context.getMessage();
+    let error: any | null;
     try {
-      await this.playerService.createPlayer(createPlayerDto);
-      await this.updateAck(channel, originalMsg);
+      return await this.playerService.createPlayer(createPlayerDto);
     } catch (e) {
+      error = e;
       this.logger.log(`error: ${JSON.stringify(e.message)}`);
-      await this.updateAck(channel, originalMsg, e);
+    } finally {
+      await this.updateAck(channel, originalMsg, error);
     }
   }
 
@@ -50,7 +52,7 @@ export class PlayerController {
     }
   }
 
-  @EventPattern('update-player')
+  @MessagePattern('update-player')
   async updatePlayer(
     @Payload() data: any,
     @Ctx() context: RmqContext,
@@ -67,7 +69,7 @@ export class PlayerController {
     }
   }
 
-  @EventPattern('delete-player')
+  @MessagePattern('delete-player')
   async deletePlayer(
     @Payload() id: string,
     @Ctx() context: RmqContext,
@@ -82,7 +84,7 @@ export class PlayerController {
     }
   }
 
-  @EventPattern('update-image-player')
+  @MessagePattern('update-image-player')
   async updatePlayerImage(
     @Payload() param: any,
     @Ctx() context: RmqContext,
