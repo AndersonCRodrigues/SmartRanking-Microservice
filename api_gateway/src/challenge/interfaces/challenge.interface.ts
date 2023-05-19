@@ -1,4 +1,3 @@
-import { Document } from 'mongoose';
 import { ChallengeStatus } from './challenge.status.enum';
 import { IPlayer } from 'src/player/interfaces/player.interface';
 
@@ -6,14 +5,14 @@ export interface IResult {
   set: string;
 }
 
-export interface IMatch extends Document {
+export interface IMatch {
   category: string;
   players: IPlayer[];
   def: IPlayer;
   result: IResult[];
 }
 
-export interface IChallenge extends Document {
+export interface IChallenge {
   dateHourChallenge: Date;
   status: ChallengeStatus;
   dateHourRequest: Date;

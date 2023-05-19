@@ -1,6 +1,4 @@
-import { Document } from 'mongoose';
-
-export interface IPlayer extends Document {
+export interface IPlayer {
   readonly phoneNumber: string;
   readonly email: string;
   name: string;
