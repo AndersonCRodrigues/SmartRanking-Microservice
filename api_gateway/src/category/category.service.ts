@@ -10,8 +10,8 @@ export class CategoryService {
   private clienteAdminBackend = this.clientProxy.getClienteProxy();
 
   async createCategory(createCategoryDto: CreateCategoryDto) {
-    return lastValueFrom(
-      this.clienteAdminBackend.emit('create-category', createCategoryDto),
+    return await lastValueFrom(
+      this.clienteAdminBackend.send('create-category', createCategoryDto),
     );
   }
 
@@ -28,7 +28,7 @@ export class CategoryService {
   async updateCategory(id: string, updateCategoryDto: UpdateCategoryDto) {
     await this.getCategories(id);
     return lastValueFrom(
-      this.clienteAdminBackend.emit('update-category', {
+      this.clienteAdminBackend.send('update-category', {
         id,
         category: updateCategoryDto,
       }),
