@@ -23,11 +23,11 @@ export class ChallengeController {
   @Post()
   @UsePipes(ValidationPipe)
   createChallenge(@Body() createChallengeDto: CreateChallengeDto) {
-    this.challengeService.createChallenge(createChallengeDto);
+    return this.challengeService.createChallenge(createChallengeDto);
   }
 
   @Get()
-  getChallenges(@Query('id') id: string) {
+  getChallenges(@Query('idPlayer') id: string) {
     return this.challengeService.getChallenges(id);
   }
 

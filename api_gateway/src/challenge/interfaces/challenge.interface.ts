@@ -7,6 +7,7 @@ export interface IResult {
 
 export interface IMatch {
   category: string;
+  challenge: string;
   players: IPlayer[];
   def: IPlayer;
   result: IResult[];
