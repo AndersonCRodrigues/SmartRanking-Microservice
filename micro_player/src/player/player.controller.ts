@@ -1,7 +1,6 @@
 import { Controller, Logger } from '@nestjs/common';
 import {
   Ctx,
-  EventPattern,
   MessagePattern,
   Payload,
   RmqContext,
@@ -9,6 +8,7 @@ import {
 import { PlayerService } from './player.service';
 import CreatePlayerDto from './dtos/create_player.dto';
 import { IPlayer } from './interfaces/players.interface';
+import UpdatePlayerDto from './dtos/update-player.dto';
 
 const ackErrors = ['E1100'];
 @Controller()
@@ -42,13 +42,17 @@ export class PlayerController {
   ): Promise<IPlayer[] | IPlayer> {
     const channel = context.getChannelRef();
     const originalMsg = context.getMessage();
+    let error: any | null;
     try {
       if (id) {
         return this.playerService.getById(id);
       }
       return this.playerService.getAll();
+    } catch (e) {
+      error = e;
+      this.logger.log(`error: ${JSON.stringify(e.message)}`);
     } finally {
-      await this.updateAck(channel, originalMsg);
+      await this.updateAck(channel, originalMsg, error);
     }
   }
 
@@ -56,16 +60,19 @@ export class PlayerController {
   async updatePlayer(
     @Payload() data: any,
     @Ctx() context: RmqContext,
-  ): Promise<void> {
+  ): Promise<IPlayer> {
     const channel = context.getChannelRef();
     const originalMsg = context.getMessage();
+    let error: any | null;
     try {
       const { id } = data;
-      const player: IPlayer = data.player;
-      this.playerService.updatePlayer(id, player);
-      await this.updateAck(channel, originalMsg);
+      const player: UpdatePlayerDto = data.player;
+      return this.playerService.updatePlayer(id, player);
     } catch (e) {
-      await this.updateAck(channel, originalMsg, e);
+      this.logger.log(`error: ${JSON.stringify(e.message)}`);
+      error = e;
+    } finally {
+      await this.updateAck(channel, originalMsg, error);
     }
   }
 
@@ -80,6 +87,7 @@ export class PlayerController {
       this.playerService.deletePlayer(id);
       await this.updateAck(channel, originalMsg);
     } catch (e) {
+      this.logger.log(`error: ${JSON.stringify(e.message)}`);
       await this.updateAck(channel, originalMsg, e);
     }
   }
@@ -97,6 +105,24 @@ export class PlayerController {
       await this.updateAck(channel, originalMsg);
     } catch (e) {
       await this.updateAck(channel, originalMsg, e);
+    }
+  }
+
+  @MessagePattern('get-player-by-email')
+  async getPlayerByEmail(
+    @Payload() email: string,
+    @Ctx() context: RmqContext,
+  ): Promise<IPlayer> {
+    const channel = context.getChannelRef();
+    const originalMsg = context.getMessage();
+    let error: any | null;
+    try {
+      return this.playerService.findPlayerBYEmail(email);
+    } catch (e) {
+      this.logger.log(`error: ${JSON.stringify(e.message)}`);
+      error = e;
+    } finally {
+      await this.updateAck(channel, originalMsg, error);
     }
   }
 
